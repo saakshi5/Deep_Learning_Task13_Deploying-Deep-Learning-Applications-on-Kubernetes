@@ -1,0 +1,60 @@
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: task13-dl-deployment
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: task13-dl-api
+
+  template:
+    metadata:
+      labels:
+        app: task13-dl-api
+
+    spec:
+      containers:
+        - name: deep-learning-api
+          image: task13-dl-api:v1
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 5000
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "768Mi"
+            limits:
+              cpu: "1500m"
+              memory: "2Gi"
+
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 60
+
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
